@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-// Base URL for API
-const API_URL = process.env.REACT_APP_API_URL || 'https://planifyorg.onrender.com';
+// ✅ Base URL for API (Render backend)
+const API_URL =
+  process.env.REACT_APP_API_URL || 'https://planifyorg.onrender.com';
 
-// Create axios instance
+// ✅ Create axios instance
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -11,7 +12,7 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if available
+// ✅ Attach token to every request if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -20,12 +21,10 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Handle responses and errors
+// ✅ Handle auth errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -38,23 +37,29 @@ api.interceptors.response.use(
   }
 );
 
-// Auth Services
+// =======================
+// AUTH SERVICES
+// =======================
 export const authService = {
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
-    if (response.data.token) {
+    const response = await api.post('/api/auth/register', userData);
+
+    if (response.data?.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data));
     }
+
     return response.data;
   },
 
   login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    if (response.data.token) {
+    const response = await api.post('/api/auth/login', credentials);
+
+    if (response.data?.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data));
     }
+
     return response.data;
   },
 
@@ -69,54 +74,58 @@ export const authService = {
   },
 };
 
-// Task Services
+// =======================
+// TASK SERVICES
+// =======================
 export const taskService = {
   getAllTasks: async (filters = {}) => {
     const params = new URLSearchParams(filters);
-    const response = await api.get(`/tasks?${params}`);
+    const response = await api.get(`/api/tasks?${params}`);
     return response.data;
   },
 
   getTaskById: async (id) => {
-    const response = await api.get(`/tasks/${id}`);
+    const response = await api.get(`/api/tasks/${id}`);
     return response.data;
   },
 
   getStats: async () => {
-    const response = await api.get('/tasks/stats');
+    const response = await api.get('/api/tasks/stats');
     return response.data;
   },
 
   createTask: async (taskData) => {
-    const response = await api.post('/tasks', taskData);
+    const response = await api.post('/api/tasks', taskData);
     return response.data;
   },
 
   updateTask: async (id, taskData) => {
-    const response = await api.put(`/tasks/${id}`, taskData);
+    const response = await api.put(`/api/tasks/${id}`, taskData);
     return response.data;
   },
 
   toggleTask: async (id) => {
-    const response = await api.patch(`/tasks/${id}/toggle`);
+    const response = await api.patch(`/api/tasks/${id}/toggle`);
     return response.data;
   },
 
   deleteTask: async (id) => {
-    const response = await api.delete(`/tasks/${id}`);
+    const response = await api.delete(`/api/tasks/${id}`);
     return response.data;
   },
 };
 
-// User Services
+// =======================
+// USER SERVICES
+// =======================
 export const userService = {
   getProfile: async () => {
-    const response = await api.get('/users/profile');
+    const response = await api.get('/api/users/profile');
     return response.data;
   },
 
   updateProfile: async (userData) => {
-    const response = await api.put('/users/profile', userData);
+    const response = await api.put('/api/users/profile', userData);
     return response.data;
   },
 };
